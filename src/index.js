@@ -1,50 +1,60 @@
-function Lxwx({ onBefore = '', onAfter = '', onError = '' } = {}) {
-  let result = {}
-  const map = new Map([
-    [onBefore, 'onLxBefore'],
-    [onAfter, 'onLxAfter'],
-    [onError, 'onLxError']
-  ])
-  for (let key of map.keys()) {
-    if (Object.prototype.toString.call(key) === '[object Function]') {
-      result[map.get(key)] = key
-    } else {
-      result[map.get(key)] = () => { }
+class Lxwx {
+  constructor({ onBefore = '', onAfter = '', onError = '' } = {}) {
+    const map = new Map([
+      [onBefore, 'onLxBefore'],
+      [onAfter, 'onLxAfter'],
+      [onError, 'onLxError']
+    ])
+    for (let key of map.keys()) {
+      if (Object.prototype.toString.call(key) === '[object Function]') {
+        this[map.get(key)] = key
+      } else {
+        this[map.get(key)] = () => { }
+      }
     }
+    this.handle()
   }
-  const obj = Object.assign({}, result, wx)
-  const lxwx = new Proxy(obj, {
-    get: function (target, prop) {
-      let _fun = target[prop]
-      if (!['onLxBefore', 'onLxAfter', 'onLxError'].includes(prop)
-        && Object.prototype.toString.call(target[prop]) === '[object Function]') {
-        _fun = function (args) {
+
+  handle() {
+    const _target = this
+    Object.keys(wx).forEach(prop => {
+      if (Object.prototype.toString.call(wx[prop]) === '[object Function]') {
+        const _fun = wx[prop];
+        _target[prop] = function () {
           const _arguments = arguments
-          obj.onLxBefore(`wx.${prop}`, _arguments)
-          const argsProxy = new Proxy(args, {
-            get: function (target2, prop2) {
-              if (prop2 === 'fail') {
-                obj.onLxError(`wx.${prop}`, args)
-              }
-              return target2[prop2]
-            }
-          })
+          _target.onLxBefore(`wx.${prop}`, _arguments)
+          if (_arguments && Object.prototype.toString.call((_arguments[0] || {}).fail) === '[object Function]') {
+            arguments[0].fail = _target.failProxy((_arguments[0] || {}).fail, prop)
+          }
           new Promise((resolve, reject) => {
             try {
-              target[prop](argsProxy)
+              _fun(arguments[0])
               resolve()
             } catch (error) {
-              // obj.onLxError(`wx.${prop}`, error)
+              _target.onLxError(`wx.${prop}`, error)
               reject()
             }
           }).then(() => {
-            obj.onLxAfter(`wx.${prop}`, _arguments)
+            _target.onLxAfter(`wx.${prop}`, _arguments)
           })
+          
         }
+      } else {
+        this[prop] = wx[prop]
       }
-      return _fun
+    })
+  }
+
+  failProxy(fun, prop) {
+    const _target = this
+    const handler = {
+      apply: function (target, ctx, args) {
+        _target.onLxError(`wx.${prop}`, args)
+        return Reflect.apply(...arguments)
+      }
     }
-  })
-  return lxwx
+    return new Proxy(fun, handler)
+  }
 }
+
 export default Lxwx;
