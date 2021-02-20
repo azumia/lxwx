@@ -1,3 +1,5 @@
+![GitHub branch checks state](https://img.shields.io/github/checks-status/azumia/lxwx/main)
+![GitHub](https://img.shields.io/github/license/azumia/lxwx)
 # lxwx
 基于小程序api的hook封装
 
