@@ -1,0 +1,23 @@
+{
+  "name": "lx-wx",
+  "version": "1.0.0",
+  "description": "this is a wx package with sentry info upload",
+  "main": "src/index.js",
+  "module": "dist/bundle.js",
+  "scripts": {
+    "build": "rm -rf ./dist && rollup -c ./build/rollup.config.prod.js",
+    "build:test": "rm -rf ./dist && rollup -c ./build/rollup.config.dev.js",
+    "test": "npm run build:test && mocha ./test/index.test.js --reporter tap"
+  },
+  "author": "ethan chen",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/preset-env": "^7.12.13",
+    "chai": "^4.3.0",
+    "mocha": "^8.2.1",
+    "rollup": "^2.38.4",
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-uglify": "^6.0.4"
+  }
+}
