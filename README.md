@@ -1,3 +1,4 @@
+![Travis (.org)](https://img.shields.io/travis/azumia/lxwx)
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/azumia/lxwx/main)
 ![GitHub](https://img.shields.io/github/license/azumia/lxwx)
 # lxwx
