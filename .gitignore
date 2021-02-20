@@ -1,0 +1,4 @@
+node_modules/
+packages/*/package-lock.json
+
+index22.js
